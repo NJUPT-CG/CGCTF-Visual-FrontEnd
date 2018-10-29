@@ -20,11 +20,11 @@
       <td class=" rank_td thead_td">Rank</td>
       <td class="name_td thead_td">Team name</td>
       <td class="score_num_td thead_td">Score</td>
-      <td class="cnt_td thead_td">Solved count</td>
-      <td class="submit_td thead_td" v-for="(item, key, index) in challenges" :key="index">
+      <td class="cnt_td thead_td">Count</td>
+      <td class="submit_td thead_td thead_submit" v-for="(item, key, index) in challenges" :key="index">
         {{item.title}}<br />
-        {{item.score}} pts<br />
-        {{item.solversCount}} solves<br />
+        {{item.score}}p<br />
+        {{item.solversCount}}s<br />
       </td>
     </tr>
     </thead>
@@ -267,16 +267,6 @@ export default {
 
 <style>
   :root {
-    --color-dark:  #161616;
-    --color-ocean:  #416dea;
-    --color-grass: #3dd28d;
-    --color-snow: #FFFFFF;
-    --color-salmon: #F32C52;
-    --color-sun: #feee7d;
-    --color-alge: #7999a9;
-    --color-flower: #353866;
-    --color-smoke: #e4e4e4;
-
     --font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
   body {
@@ -298,7 +288,7 @@ export default {
   }
   thead
   {
-    background-color: #c7c7bb;
+    /*background-color: #c7c7bb;*/
     color: #fff;
     font-weight: bold;
     font-size: 14px;
@@ -316,6 +306,15 @@ export default {
   td
   {
     height: inherit;
+  }
+  .thead_submit
+  {
+    word-break: break-all;
+    word-break: break-word;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .metadata
   {
@@ -376,11 +375,12 @@ export default {
     margin-right: 5%;
     background-color: #262e48;
     border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
   }
   .bt-container{
     display: flex;
     justify-content: space-around;
-    padding: 30px 0;
+    padding: 20px 0;
   }
   .bt{
     display: block;

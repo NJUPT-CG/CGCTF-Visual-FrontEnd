@@ -49,11 +49,11 @@ export default {
 <style>
   .pwnning-title
   {
-    font-family: "Courier 10 Pitch";
     font-size: 3rem;
+    color: white;
   }
   body
   {
-    background: linear-gradient(45deg, #ffffff, #cccccc);
+    background: linear-gradient(to right, #7856c4, #0a0496);
   }
 </style>

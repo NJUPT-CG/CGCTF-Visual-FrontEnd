@@ -25,37 +25,42 @@ export default {
 <style>
   .Pwn
   {
-    background-color: rgba(180, 240, 255, 0.6);
+    /*background-color: #262e48;*/
   }
   .Web
   {
-    background-color: rgba(208, 255, 170, 0.6);
+    /*background-color: #3f4b6c;*/
   }
   .Misc
   {
-    background-color: rgba(52, 164, 255, 0.6);
+    /*background-color: #3f4b6c;*/
   }
   .Crypto
   {
-    background-color: rgba(36, 255, 130, 0.6);
+    /*background-color: #262e48;*/
   }
   .Re
   {
-    background-color: rgba(190, 255, 68, 0.6);
+    /*background-color: #3f4b6c;*/
   }
   .pwnning-log
   {
-    font-family: "Courier 10 Pitch";
+    font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     z-index: 1;
-    // background-color: rgba(255, 255, 255, 0.6);
-    margin: 2rem 2%;
+    /*background-color: rgba(255, 255, 255, 0.6);*/
+    margin: 0.8rem 2%;
     display: flex;
     justify-content: space-between;
     width: 92%;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     text-align: center;
     padding: 1rem;
     white-space: nowrap;
+    /*-webkit-border-radius: 20px;*/
+    /*-moz-border-radius: 20px;*/
+    /*border-radius: 20px;*/
+    color: white;
+    border-bottom: 1px solid grey;
   }
   .src-team
   {
