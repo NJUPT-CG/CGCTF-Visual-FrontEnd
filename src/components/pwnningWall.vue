@@ -54,8 +54,6 @@ export default {
   }
   body
   {
-    background-color: #334477;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background: linear-gradient(45deg, #ffffff, #cccccc);
   }
 </style>
