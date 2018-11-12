@@ -60,9 +60,7 @@ export default {
       var teamsData = []
       var apiAddr = 'https://nctf.x1c.club/scoreboard?api=' + teamCount.toString() + '&class=' + className
       await this.$ajax.get(apiAddr).then(res => {
-        // console.log(res.data)
         for (var i in res.data) {
-          // console.log(item)
           var obj = {}
           obj.id = res.data[i].id
           obj.name = res.data[i].name
@@ -75,52 +73,21 @@ export default {
         console.log(error)
       })
       this.team_logs = teamsData
-      // console.log(this.team_logs)
       return teamsData
     },
-    async loadTeamLog (teamId) {
-      var submitData = []
-      var dataForTable
-      var apiAddr = 'https://nctf.x1c.club/teamdetail/' + teamId + '?api=1'
+    async loadTeamLog (teamList) {
+      var submitData
+      var apiAddr = 'https://nctf.x1c.club/scoreboarddetail?'
+      for (var i in teamList) {
+        apiAddr += 'list[' + i.toString() + ']=' + teamList[i].id + '&'
+      }
       await this.$ajax.get(apiAddr).then(res => {
-        var currentScore = 0
-        dataForTable = new Array(this.challenges.length)
-        for (var x in this.challenges) {
-          var id = this.challenges[x].id
-          var o = res.data.find(function (element) {
-            return element.pivot.challengeid === this
-          }, id)
-          if (o !== undefined) {
-            dataForTable[x] = {
-              srank: o.srank,
-              time: (new Date(o.pivot.created_at) - new Date(document.startTime)) / 1000
-            }
-          } else {
-            dataForTable[x] = {
-              srank: 0,
-              time: 0
-            }
-          }
-        }
         // console.log(res.data)
-        for (var i in res.data.reverse()) {
-          var obj = []
-          // obj.date = res.data[i].pivot.created_at
-          currentScore += res.data[i].score
-          if (res.data[i].srank <= 3) {
-            currentScore += 60 / res.data[i].srank
-          }
-          obj = [res.data[i].pivot.created_at, currentScore]
-          submitData.push(obj)
-        }
-        // console.log(submitData)
+        submitData = res.data
       }).catch(error => {
         console.log(error)
       })
-      return {
-        dataForCharts: submitData,
-        dataForTable: dataForTable
-      }
+      return submitData
     },
     async buildChart (data) {
       var options = {
@@ -171,55 +138,101 @@ export default {
         },
         series: []
       }
-      // document.chart.setOption(options)
       options.series = data
       document.chart.clear()
-      // console.log(data)
       document.chart.setOption(options)
+    },
+    processTableData (rawData) {
+      var keys = []
+      for (var i in this.challenges) {
+        keys.push(this.challenges[i].id)
+      }
+      var j = 0
+      rawData.forEach(obj => {
+        var solveLog = []
+        keys.forEach(key => {
+          var x = obj.filter(item => {
+            return item.id === key
+          })
+          // console.log(x)
+          if (x.length === 1) {
+            solveLog.push({
+              srank: x[0].srank,
+              time: (new Date(x[0].time).getTime() - new Date(document.startTime).getTime()) / 1000
+            })
+          } else {
+            solveLog.push({
+              srank: 0,
+              time: 0
+            })
+          }
+        })
+        this.team_logs[j].solve_cnt = obj.length
+        this.team_logs[j].solve_log = solveLog
+        j++
+      })
+    },
+    processChartData (rawData) {
+      var arr = []
+      // console.log(rawData)
+      for (var i in rawData) {
+        var dataset = []
+        rawData[i].sort(function (a, b) {
+          return new Date(a.time).getTime() - new Date(b.time).getTime()
+        })
+        // console.log(rawData[i])
+        var nowScore = 0
+        rawData[i].forEach(obj => {
+          nowScore += obj.score
+          dataset.push([obj.time, nowScore])
+        })
+        arr.push({
+          name: this.team_logs[i].name,
+          dataset: dataset
+        })
+      }
+      return arr
     },
     async loadData (className, teamCount) {
       await this.getChallenges()
       var teamList = await this.getTopTeams(className, teamCount)
-      // console.log(teamList)
       if (teamList) {
-        var chartData = []
-        for (var i in teamList) {
-          // console.log(teamList[i])
-          var obj = {}
-          obj.name = teamList[i].name.substr(0, 20)
-          obj.type = 'line'
-          obj.symbolSize = 7
-          obj.lineStyle = {}
-          obj.lineStyle.width = 3
-          obj.connectNulls = true
-          var o = await this.loadTeamLog(teamList[i].id)
-          obj.data = o.dataForCharts
-          this.team_logs[i].solve_log = o.dataForTable
-          this.team_logs[i].solve_cnt = (function () {
-            var cnt = 0
-            for (i in o.dataForTable) {
-              if (o.dataForTable[i].srank !== 0) {
-                cnt++
-              }
+        var o = await this.loadTeamLog(teamList)
+        var keys = []
+        for (var i in this.team_logs) {
+          keys.push(this.team_logs[i].id)
+        }
+        // console.log(keys)
+        var arr = []
+        keys.forEach(key => {
+          arr.push(o[key])
+        })
+        // console.log(arr)
+        this.processTableData(arr)
+        if (document.teamCount <= 20) {
+          var dataForCharts = this.processChartData(arr)
+          var chartData = []
+          dataForCharts.forEach(dataset => {
+            var obj = {
+              name: dataset.name,
+              type: 'line',
+              symbolSize: 7,
+              lineStyle: {
+                width: 3
+              },
+              connectNulls: true,
+              data: dataset.dataset
             }
-            return cnt
-          }())
-          obj.data.unshift([document.startTime, 0])
-          if (obj.data) {
+            obj.data.unshift([document.startTime, 0])
             chartData.push(obj)
-          } else {
-            console.log('Error while loading chart data')
-            return null
-          }
-          // console.log(chartData)
+          })
+          document.chart = this.$chart.init(document.getElementById('chart'))
+          this.buildChart(chartData)
         }
       } else {
         console.log('Error while loading team data')
         return null
       }
-      // console.log(chartData)
-      document.chart = this.$chart.init(document.getElementById('chart'))
-      this.buildChart(chartData)
     },
     async changeClass (className) {
       document.className = className
@@ -237,10 +250,9 @@ export default {
       for (var i in classes) {
         var obj = await this.getChallengesByClassName(classes[i])
         challenges = challenges.concat(obj)
-        // console.log(obj)
       }
-      console.log(challenges)
       this.challenges = challenges
+      console.log(challenges)
     },
     async getChallengesByClassName (className) {
       var result = []
@@ -257,10 +269,10 @@ export default {
   async mounted () {
     document.className = 'all'
     document.teamCount = 20
-    document.startTime = '2018-10-15 21:41:00'
+    document.startTime = '2018-10-29 19:00:00'
     await this.loadData('all', 20)
     this.$forceUpdate()
-    console.log(this.team_logs)
+    // console.log(this.team_logs)
   }
 }
 </script>
