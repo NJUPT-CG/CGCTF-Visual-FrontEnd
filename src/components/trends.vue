@@ -269,7 +269,7 @@ export default {
   async mounted () {
     document.className = 'all'
     document.teamCount = 20
-    document.startTime = '2018-10-29 19:00:00'
+    document.startTime = '2018-11-24 09:00:00'
     await this.loadData('all', 20)
     this.$forceUpdate()
     // console.log(this.team_logs)
